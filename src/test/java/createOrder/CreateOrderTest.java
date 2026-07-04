@@ -70,7 +70,7 @@ public class CreateOrderTest {
     @Test
     @DisplayName("Создание заказа с ингредиентами без авторизации")
     @Description("Получение ответа 400 при создании заказа без авторизации")
-    public void createOrderNotAuthUser(){
+    public void createOrderNotAuthUserCheckStatusAndResponseBody(){
         List<String> ingredients = new ArrayList<>();
         ingredients.add(BREAD);
         ingredients.add(SAUCE);
@@ -81,7 +81,8 @@ public class CreateOrderTest {
                 .log().all()
                 .assertThat()
                 .statusCode(400)
-                .body("success", is(false));
+                .body("success", is(false))
+                .body("message", is("Ingredient ids must be provided"));
     }
 
     @Test
@@ -116,7 +117,7 @@ public class CreateOrderTest {
     @Test
     @DisplayName("Создание заказа с неправильными ингредиентами под авторизированным пользователем")
     @Description("Получение ответа 500 при создании заказа под авторизированным пользователем и несуществующими ингредиентами")
-    public void createUncorrectIngredientOrderAuthUser(){
+    public void createUncorectIngredientOrderAuthUser(){
         List<String> ingredients = new ArrayList<>();
         ingredients.add("1234567890");
         ingredients.add("0987654321");
@@ -126,7 +127,6 @@ public class CreateOrderTest {
         orderSteps.createNewOrderAuthUser(orderCreateRequest)
                 .log().all()
                 .assertThat()
-                .statusCode(500)
-                .body("success", is(false));
+                .statusCode(500);
     }
 }

@@ -20,10 +20,11 @@ public class LoginUserTest {
     private UserSteps userSteps;
     private UserCreateRequest userCreateRequest;
     private String accessToken;
+    private String uniqueEmail;
 
     @Before
     public void setUp(){
-        String uniqueEmail = UUID.randomUUID() + "@mail.com";
+        uniqueEmail = UUID.randomUUID() + "@mail.com";
         userCreateRequest = new UserCreateRequest(uniqueEmail, PASSWORD, NAME);
         userSteps = new UserSteps();
     }
@@ -45,14 +46,32 @@ public class LoginUserTest {
         assertNotNull("accessToken не должен быть null", accessToken);
     }
 
-    @DisplayName("Авторизация пользователя с неверными логином и паролем")
+    @DisplayName("Авторизация пользователя с неверными логином")
     @Description("Получение ошибки 401 при авторизация пользователя с неверными логином и паролем")
     @Test
-    public void failedAuth() {
-        String wrongEmail = "tutTochnoNeptavilnoVse@gmail.com";
-        UserLoginRequest wrongLoginRequest = new UserLoginRequest(wrongEmail, "wrongPassword");
+    public void failedAuthByEmail() {
+        userSteps.registeredAndGetTokens(userCreateRequest);
+        accessToken = userSteps.getAccessToken();
+        String wrongLogin = UUID.randomUUID() + "@mail.com";
+        UserLoginRequest wrongEmailRequest = new UserLoginRequest(wrongLogin, PASSWORD);
 
-        userSteps.authorizationUser(wrongLoginRequest)
+        userSteps.authorizationUser(wrongEmailRequest)
+                .then()
+                .log().all()
+                .assertThat()
+                .statusCode(401)
+                .body("message", equalTo("email or password are incorrect"));
+    }
+    @DisplayName("Авторизация пользователя с неверными паролем")
+    @Description("Получение ошибки 401 при авторизация пользователя с неверными логином и паролем")
+    @Test
+    public void failedAuthByPassword() {
+        userSteps.registeredAndGetTokens(userCreateRequest);
+        accessToken = userSteps.getAccessToken();
+        String wrongPassword = "wrongPassword";
+        UserLoginRequest wrongPasswordRequest = new UserLoginRequest(uniqueEmail, wrongPassword);
+
+        userSteps.authorizationUser(wrongPasswordRequest)
                 .then()
                 .log().all()
                 .assertThat()

@@ -17,14 +17,12 @@ import java.util.UUID;
 public class UserRegistrationTest {
 
     UserSteps userSteps;
-    UserCreateRequest userCreateRequest;
     UserLoginRequest userLoginRequest;
     String uniqueEmail;
 
     @Before
     public void createUserForTest(){
         uniqueEmail = UUID.randomUUID() + "@mail.com";
-        userCreateRequest = new UserCreateRequest(uniqueEmail, PASSWORD, NAME);
         userLoginRequest = new UserLoginRequest(uniqueEmail, PASSWORD);
         userSteps = new UserSteps();
     }
@@ -40,6 +38,7 @@ public class UserRegistrationTest {
     @Description("Получение 201 ответа с accessToken и refreshToken при создании нового пользователя")
     @Test
     public void newUserRegistrationSuccess(){
+        UserCreateRequest userCreateRequest = new UserCreateRequest(uniqueEmail, PASSWORD, NAME);
         userSteps.registeredAndGetTokens(userCreateRequest);
 
         assertNotNull(userSteps.getAccessToken());
@@ -50,6 +49,7 @@ public class UserRegistrationTest {
     @Description("Получение 403 ответа при создании идентичных пользователей")
     @Test
     public void newIdenticalRegistrationUserFailed(){
+        UserCreateRequest userCreateRequest = new UserCreateRequest(uniqueEmail, PASSWORD, NAME);
         userSteps.registeredAndGetTokens(userCreateRequest);
         assertNotNull(userSteps.getAccessToken());
         assertNotNull(userSteps.getRefreshToken());
@@ -59,12 +59,37 @@ public class UserRegistrationTest {
                 .body("message", org.hamcrest.Matchers.equalTo("User already exists"));
     }
 
-    @DisplayName("Создание пользователя без одного из обязательных полей")
+    @DisplayName("Создание пользователя без обязательного поля name")
     @Description("Получение 403 ответа при создании пользователя без обязательного поля name")
     @Test
     public void newUserRegistrationNoFieldName(){
+        UserCreateRequest userCreateRequest = new UserCreateRequest();
+        userCreateRequest.setEmail(uniqueEmail);
+        userCreateRequest.setPassword(PASSWORD);
         userSteps.registerUserExpectingError(userCreateRequest)
         .statusCode(403)
         .body("message", org.hamcrest.Matchers.equalTo("Email, password and name are required fields"));
+    }
+    @DisplayName("Создание пользователя без обязательного поля email")
+    @Description("Получение 403 ответа при создании пользователя без обязательного поля email")
+    @Test
+    public void newUserRegistrationNoFieldEmail(){
+        UserCreateRequest userCreateRequest = new UserCreateRequest();
+        userCreateRequest.setName(NAME);
+        userCreateRequest.setPassword(PASSWORD);
+        userSteps.registerUserExpectingError(userCreateRequest)
+                .statusCode(403)
+                .body("message", org.hamcrest.Matchers.equalTo("Email, password and name are required fields"));
+    }
+    @DisplayName("Создание пользователя без обязательного поля password")
+    @Description("Получение 403 ответа при создании пользователя без обязательного поля password")
+    @Test
+    public void newUserRegistrationNoFieldPassword(){
+        UserCreateRequest userCreateRequest = new UserCreateRequest();
+        userCreateRequest.setEmail(uniqueEmail);
+        userCreateRequest.setName(NAME);
+        userSteps.registerUserExpectingError(userCreateRequest)
+                .statusCode(403)
+                .body("message", org.hamcrest.Matchers.equalTo("Email, password and name are required fields"));
     }
 }

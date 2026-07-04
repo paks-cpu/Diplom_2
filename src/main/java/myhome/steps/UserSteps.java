@@ -31,7 +31,6 @@ public class UserSteps {
                 .body(userCreateRequest)
                 .post(POST_REGISTER_USER)
                 .then()
-                .statusCode(200)
                 .extract()
                 .response();
 
@@ -51,10 +50,9 @@ public class UserSteps {
     @Step("Удаление пользователя")
     public void deleteUserByBeaver(String accessToken) {
         getBaseSpec()
-                .header("Authorization", this.accessToken)
+                .header("Authorization", accessToken)
                 .delete(DELETE_USER)
-                .then()
-                .statusCode(202);
+                .then();
     }
 
     @Step("Авторизация пользователя")

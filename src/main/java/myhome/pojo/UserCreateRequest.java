@@ -11,6 +11,9 @@ public class UserCreateRequest {
         this.name = name;
     }
 
+    public UserCreateRequest() {
+    }
+
     public String getEmail() {
         return email;
     }
