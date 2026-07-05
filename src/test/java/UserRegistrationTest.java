@@ -1,5 +1,3 @@
-package createUser;
-
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import myhome.pojo.UserCreateRequest;
